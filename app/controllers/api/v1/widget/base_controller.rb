@@ -4,8 +4,16 @@ class Api::V1::Widget::BaseController < ApplicationController
 
   before_action :set_web_widget
   before_action :set_contact
+  before_action :validate_conversation_id
 
   private
+
+  def validate_conversation_id
+    return unless params.key?(:conversation_id)
+    return if params[:conversation_id].is_a?(String) && params[:conversation_id].match?(/\A[1-9]\d*\z/)
+
+    render json: { error: 'Invalid conversation ID' }, status: :unprocessable_entity
+  end
 
   def conversations
     if @contact_inbox.hmac_verified?
@@ -17,7 +25,11 @@ class Api::V1::Widget::BaseController < ApplicationController
   end
 
   def conversation
-    @conversation ||= conversations.last
+    @conversation ||= if params.key?(:conversation_id)
+                        conversations.find_by!(display_id: params[:conversation_id])
+                      else
+                        conversations.last
+                      end
   end
 
   def create_conversation
