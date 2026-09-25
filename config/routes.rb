@@ -52,6 +52,7 @@ Rails.application.routes.draw do
         end
 
         scope module: :accounts do
+          resources :sdk_apps, only: [:index, :show, :create, :update, :destroy]
           namespace :actions do
             resource :contact_merge, only: [:create]
           end
@@ -298,9 +299,6 @@ Rails.application.routes.draw do
           resources :custom_filters, only: [:index, :show, :create, :update, :destroy]
           resource :branded_email_layout, only: [:show, :update]
           resources :inboxes, only: [:index, :show, :create, :update, :destroy] do
-            resource :mobile_app, only: [:show, :update, :destroy], controller: :inbox_mobile_apps do
-              post :test_notification
-            end
             get :assignable_agents, on: :member
             get :campaigns, on: :member
             get :agent_bot, on: :member
